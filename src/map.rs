@@ -23,14 +23,51 @@ impl Map {
         }
     }
 
+    /// Check if a given Point is within the bounds defined by this map
+    ///
+    /// # Examples
+    /// ```
+    /// // Map size of 80x50
+    /// let map: Map = Map::new();
+    /// let point: Point = Point::new(1, 1);
+    /// let out_of_bounds_point: Point = Point::new(500, 500);
+    /// assert_eq!(map.point_in_bounds(point), true);
+    /// assert_eq!(map.point_in_bounds(out_of_bounds_point), false);
+    /// ```
     pub fn point_in_bounds(&self, point: Point) -> bool {
         point.x >= 0 && point.x < SCREEN_WIDTH && point.y >= 0 && point.y < SCREEN_HEIGHT
     }
 
+    /// Check if something can enter (move into) a given point on the map. Currently, a tile is
+    /// enterable if it is not a TileType::Wall, and is within the bounds of the defined map
+    ///
+    /// # Examples
+    /// ```
+    /// // Map size of 80x50
+    /// let map:: Map = Map::new();
+    /// let point: Point = Point::new(1, 1);
+    ///
+    /// // Assume the tile at Point(1, 1) is a TileType::Floor
+    /// assert_eq!(map.can_enter_tile(point), true);
+    ///
+    /// // Assume the tile at Point(1, 1) is a TileType::Wall
+    /// assert_eq!(map.can_enter_tile(point), false);
+    /// ```
     pub fn can_enter_tile(&self, point: Point) -> bool {
         self.point_in_bounds(point) && self.tiles[map_index(point.x, point.y)] == TileType::Floor
     }
 
+    /// Get a tiles index coordinates, if the point provided is a valid location within the map
+    ///
+    /// # Examples
+    /// ```
+    /// let map: Map = Map::new();
+    /// let mut point: Point = Point::new(-1, -1);
+    /// assert_eq!(map.try_index(point).is_some(), false);
+    ///
+    ///  point = Point::new(1, 1);
+    ///  assert_eq!(map.try_index(point).is_some(), true);
+    /// ```
     pub fn try_index(&self, point: Point) -> Option<usize> {
         if !self.point_in_bounds(point) {
             None

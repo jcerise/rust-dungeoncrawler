@@ -30,7 +30,7 @@ impl State {
 impl GameState for State {
     fn tick (&mut self, context: &mut BTerm) {
         context.cls();
-        self.player.update(context, &self.map);
+        self.player.update(context.key, &self.map);
         self.map.render(context);
         self.player.render(context);
     }

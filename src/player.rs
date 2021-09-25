@@ -11,6 +11,7 @@ impl Player {
         }
     }
 
+    /// Renders the player char to the screen at its current position
     pub fn render(&self, context: &mut BTerm) {
         context.set(
             self.position.x,
@@ -21,8 +22,18 @@ impl Player {
         );
     }
 
-    pub fn update(&mut self, context: &mut BTerm, map: &Map) {
-        if let Some(key) = context.key {
+    /// Updates the position of the player based on the directional key pressed by the user
+    ///
+    /// # Examples
+    /// ```
+    /// let position: Point = Point(1, 1);
+    /// let player: Player = Player::new(position);
+    /// player.update(Some(VirtualKeyCode::Left), &map);
+    ///
+    /// assert_eq!(player.position.x, 0);
+    /// ```
+    pub fn update(&mut self, key: Option<VirtualKeyCode>, map: &Map) {
+        if let Some(key) = key {
             let delta = match key {
                 VirtualKeyCode::Left => Point::new(-1, 0),
                 VirtualKeyCode::Right => Point::new(1, 0),
@@ -36,5 +47,47 @@ impl Player {
                 self.position = new_position;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn create_new_player() {
+        let position: Point = Point::new(1, 1);
+        let player: Player = Player::new(position);
+
+        assert_eq!(player.position.x, 1);
+        assert_eq!(player.position.y, 1);
+    }
+
+    #[test]
+    fn update_player_position() {
+        let position: Point = Point::new(1, 1);
+        let mut player: Player = Player::new(position);
+        let map: Map = Map::new();
+
+        player.update(Some(VirtualKeyCode::Left), &map);
+
+        assert_eq!(player.position.x, 0);
+        assert_eq!(player.position.y, 1);
+
+        player.update(Some(VirtualKeyCode::Right), &map);
+
+        assert_eq!(player.position.x, 1);
+        assert_eq!(player.position.y, 1);
+
+        player.update(Some(VirtualKeyCode::Up), &map);
+
+        assert_eq!(player.position.x, 1);
+        assert_eq!(player.position.y, 0);
+
+        player.update(Some(VirtualKeyCode::Down), &map);
+
+        assert_eq!(player.position.x, 1);
+        assert_eq!(player.position.y, 1);
     }
 }
