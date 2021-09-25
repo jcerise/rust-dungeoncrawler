@@ -82,10 +82,10 @@ impl Map {
                 let index = map_index(x, y);
                 match self.tiles[index] {
                     TileType::Floor => {
-                        context.set(x, y, GRAY, BLACK, to_cp437('.'));
+                        context.set(x, y, WHITE, BLACK, to_cp437('.'));
                     }
                     TileType::Wall => {
-                        context.set(x, y, GREEN, BLACK, to_cp437('#'));
+                        context.set(x, y, GRAY20, BLACK, to_cp437('#'));
                     }
                 }
             }
