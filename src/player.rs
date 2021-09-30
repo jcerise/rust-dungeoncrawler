@@ -12,10 +12,11 @@ impl Player {
     }
 
     /// Renders the player char to the screen at its current position
-    pub fn render(&self, context: &mut BTerm) {
+    pub fn render(&self, context: &mut BTerm, camera: &Camera) {
+        context.set_active_console(2);
         context.set(
-            self.position.x,
-            self.position.y,
+            self.position.x - camera.left_x,
+            self.position.y - camera.top_y,
             WHITE,
             BLACK,
             to_cp437('@')
@@ -32,7 +33,7 @@ impl Player {
     ///
     /// assert_eq!(player.position.x, 0);
     /// ```
-    pub fn update(&mut self, key: Option<VirtualKeyCode>, map: &Map) {
+    pub fn update(&mut self, key: Option<VirtualKeyCode>, map: &Map, camera: &mut Camera) {
         if let Some(key) = key {
             let delta = match key {
                 VirtualKeyCode::Left => Point::new(-1, 0),
@@ -45,6 +46,7 @@ impl Player {
             let new_position = self.position + delta;
             if map.can_enter_tile(new_position) {
                 self.position = new_position;
+                camera.on_player_move(new_position);
             }
         }
     }
@@ -69,23 +71,24 @@ mod tests {
         let position: Point = Point::new(1, 1);
         let mut player: Player = Player::new(position);
         let map: Map = Map::new();
+        let mut camera: Camera = Camera::new(position);
 
-        player.update(Some(VirtualKeyCode::Left), &map);
+        player.update(Some(VirtualKeyCode::Left), &map, &mut camera);
 
         assert_eq!(player.position.x, 0);
         assert_eq!(player.position.y, 1);
 
-        player.update(Some(VirtualKeyCode::Right), &map);
+        player.update(Some(VirtualKeyCode::Right), &map, &mut camera);
 
         assert_eq!(player.position.x, 1);
         assert_eq!(player.position.y, 1);
 
-        player.update(Some(VirtualKeyCode::Up), &map);
+        player.update(Some(VirtualKeyCode::Up), &map, &mut camera);
 
         assert_eq!(player.position.x, 1);
         assert_eq!(player.position.y, 0);
 
-        player.update(Some(VirtualKeyCode::Down), &map);
+        player.update(Some(VirtualKeyCode::Down), &map, &mut camera);
 
         assert_eq!(player.position.x, 1);
         assert_eq!(player.position.y, 1);

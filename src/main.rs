@@ -1,3 +1,4 @@
+mod camera;
 mod map;
 mod map_builder;
 mod player;
@@ -9,6 +10,10 @@ mod prelude {
     pub use crate::map::*;
     pub use crate::player::*;
     pub use crate::map_builder::*;
+    pub use crate::camera::*;
+
+    pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
+    pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
 }
 
 use prelude::*;
@@ -16,6 +21,7 @@ use prelude::*;
 struct State {
     map: Map,
     player: Player,
+    camera: Camera,
 }
 
 impl State {
@@ -24,19 +30,23 @@ impl State {
         let map_builder = MapBuilder::new(&mut rng);
         Self {
             map: map_builder.map,
-            player: Player::new(
-                map_builder.player_start
-            ),
+            player: Player::new(map_builder.player_start),
+            camera: Camera::new(map_builder.player_start)
         }
     }
 }
 
 impl GameState for State {
     fn tick (&mut self, context: &mut BTerm) {
+        // Clear the consoles
+        context.set_active_console(1);
         context.cls();
-        self.player.update(context.key, &self.map);
-        self.map.render(context);
-        self.player.render(context);
+        context.set_active_console(2);
+        context.cls();
+
+        self.player.update(context.key, &self.map, &mut self.camera);
+        self.map.render(context, &self.camera);
+        self.player.render(context, &self.camera);
     }
 }
 
@@ -44,6 +54,12 @@ fn main() -> BError {
     let context = BTermBuilder::simple80x50()
         .with_title("DungeonCrawler")
         .with_fps_cap(30.0)
+        .with_dimensions(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+        .with_tile_dimensions(32, 32)
+        .with_resource_path("resources/")
+        .with_font("runeset_32x32.png", 32, 32)
+        .with_simple_console(DISPLAY_WIDTH, DISPLAY_HEIGHT, "runeset_32x32.png")
+        .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "runeset_32x32.png")
         .build()?;
 
     main_loop(context, State::new())
