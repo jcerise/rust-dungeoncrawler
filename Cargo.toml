@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 bracket-lib = "~0.8.1"
-mockall = "~0.10.2"
+legion = "=0.3.1"
